@@ -59,4 +59,4 @@ with open("messages.csv", "w", encoding="UTF-8") as f:
     writer.writerow(["message"])
     writer.writerows([[message] for message in all_messages])
 
-print('Parsing messages from the chat was successful')
+print('Parsing messages from the chat was successful.')
