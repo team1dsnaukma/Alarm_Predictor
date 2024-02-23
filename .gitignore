@@ -1,1 +1,3 @@
 weather_forecast/token.json
+historical_data/alarms.csv
+historical_data/all_weather_by_hour_v2.csv
