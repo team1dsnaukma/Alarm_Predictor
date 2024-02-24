@@ -1,4 +1,3 @@
-#new
 import csv
 from datetime import datetime, timedelta
 import requests
