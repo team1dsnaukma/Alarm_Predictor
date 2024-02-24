@@ -1,3 +1,4 @@
+#new
 import csv
 from datetime import datetime, timedelta
 import requests
@@ -45,6 +46,7 @@ with open("../raw_data_from_parsing/isw/isw.csv", 'w', encoding="utf-8") as f:
             requests.get(BASE + date.strftime("-%B-%#d-%Y")).content,
             "html.parser"
         )
+
         if page.find("link")["href"] == "/404":
             page = BeautifulSoup(
                 requests.get(BASE + date.strftime("-%B-%#d")).content,
