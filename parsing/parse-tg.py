@@ -5,7 +5,7 @@ import csv
 
 api_id = 123
 api_hash = "-"
-phone = "-"
+phone = "----"
 
 client = TelegramClient(phone, api_id, api_hash)
 
