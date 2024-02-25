@@ -3,7 +3,7 @@ from telethon.tl.functions.messages import GetDialogsRequest, GetHistoryRequest
 from telethon.tl.types import InputPeerEmpty
 import csv
 
-api_id = 2
+api_id = 123
 api_hash = "-"
 phone = "-"
 
