@@ -58,7 +58,7 @@ def parser(start, end):
                 data.append((date.strftime("%d-%m-%Y"), "", ""))
                 continue
         page = BeautifulSoup(request.content, "html.parser")
-        data.append((date.strftime("%d-%m-%Y"), page.title.text, get_news_by_page(page)))
+        data.append((date.strftime("%d-%m-%Y"), page.title.text, request.url, page, get_news_by_page(page)))
     return data
 
 
