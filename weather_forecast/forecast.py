@@ -1,5 +1,6 @@
 import json
 import requests
+import pandas as pd
 from datetime import datetime, timedelta
 with open('token.json', 'r') as file:
     data = json.load(file)
@@ -14,7 +15,6 @@ def get_weather_next_12_hours(location, current_time, units):
     future_date = future_time.strftime('%Y-%m-%d')
     url = (f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}/{current_date}/'
            f'{future_date}')
-
     params = {
         'key': TOKEN,
         'unitGroup': units,
@@ -22,41 +22,35 @@ def get_weather_next_12_hours(location, current_time, units):
         "include": "hours"
     }
     response = requests.get(url, params=params)
-    print(response.json())
+    response = response.json()
+
+    weather_by_hour = []
+    global_info = [response[info] for info in response if info != "days" and info != "queryCost"]
+    column_city = ["city_" + str(info) for info in response if info != "days" and info != "queryCost"]
+    for day in response["days"]:
+        template = [str(day[info]) for info in day if info != "hours"]
+        columns_days = ["day_" + info for info in day if info != "hours"]
+        for hour in day["hours"]:
+            hour_info = [str(hour[info]) for info in hour]
+            columns_hour = ["hour_" + str(info) for info in hour]
+            full_info_hour = global_info + template + hour_info
+            weather_by_hour.append(full_info_hour)
+    rounded_time = current_time.replace(second=0, microsecond=0, minute=0) + timedelta(
+        hours=round(current_time.minute / 60))
+    formatted_time = rounded_time.strftime('%H:%M:%S')
+    weather_current_hour = next((item for item in weather_by_hour if item[42] == formatted_time), None)
+    index_current = weather_by_hour.index(weather_current_hour)
+    forecast_next_12_hours = weather_by_hour[index_current+1:][:12]
+    columns = column_city + columns_days + columns_hour
+    forecast_next_12_hours.insert(0, columns)
+    df = pd.DataFrame(forecast_next_12_hours[1:], columns=forecast_next_12_hours[0])
+    formatted_time = rounded_time.strftime('%H-%M')
+    df.to_csv(f"../clean_data/forecast_next_12_hours_from_{current_date} {formatted_time}.csv")
 
 
-get_weather_next_12_hours("Kyiv,Ukraine", utc_time, "metric")
 
 
+if __name__ == "__main__":
+    get_weather_next_12_hours("Kyiv,Ukraine", utc_time, "metric")
 
 
-
-"""units_default = {
-        "us": {"temp": "°F", "wind": "miles per hour", "precip": "inches", "visibility": "miles"},
-        "metric": {"temp": "°C", "wind": "kms per hour", "precip": "millimeters", "visibility": "kilometrs"},
-        "uk": {"temp": "°C", "wind": "miles per hour", "precip": "millimeters", "visibility": "miles"},
-        "base": {"temp": "°K", "wind": "meters per second", "precip": "millimeters", "visibility": "kilometrs"},
-    }
-    result = {
-        "requster_name": name,
-        "timestamp": utc_time,
-        "location": location,
-        "date": date,
-        "weather":
-            {
-                "Description": response["days"][0]["description"],
-                "Conditions": response["days"][0]["conditions"],
-                "Max temeperature": str(response["days"][0]["tempmax"]) + units_default[units]["temp"],
-                "Min temeperature": str(response["days"][0]["tempmin"]) + units_default[units]["temp"],
-                "Feels like max": str(response["days"][0]["feelslikemax"]) + units_default[units]["temp"],
-                "Feels like min": str(response["days"][0]["feelslikemin"]) + units_default[units]["temp"],
-                "UV Index": str(response["days"][0]["uvindex"]) + " / 10",
-                "Precip amnt": str(response["days"][0]["precip"]) + " " + units_default[units]["precip"],
-                "Precipitation Probability": str(response["days"][0]["precipprob"]) + "%",
-                "Wind Speed": str(response["days"][0]["windspeed"]) + " " + units_default[units]["wind"],
-                "Visibility": str(response["days"][0]["visibility"]) + " " + units_default[units]["visibility"],
-                "Humidity": str(response["days"][0]["humidity"]) + "%"
-            }
-    }
-
-    return result"""
