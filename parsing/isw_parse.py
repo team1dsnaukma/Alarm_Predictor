@@ -34,31 +34,37 @@ def get_news_by_page(data):
     return "\n".join(parsed_page)
 
 
-def parser(start, end, directory):
-    data = dict()
+def writer(to_write, directory):
+    with open(directory, 'w', encoding="utf-8") as f:
+        writer_obj = csv.writer(f)
+        writer_obj.writerow(["col" + f"{i}" for i in range(len(to_write[0]))])
+        for row in to_write:
+            writer_obj.writerow(row)
+
+
+def parser(start, end):
+    data = []
     period = end - start
     for delta in range(period.days + 1):
         date = start + timedelta(delta)
         request = requests.get(BASE + date.strftime("-%B-%#d"))
-        if request.status_code == 404:
+        if not request.status_code == 200:
             request = requests.get(BASE + date.strftime("-%B-%#d-%Y"))
             if request.status_code == 200:
                 pass
-            elif request.status_code == 404 and date in special_urls:
+            elif date in special_urls:
                 request = requests.get(special_urls[date])
             else:
-                data[date.strftime("%d-%m-%Y")] = ""
+                data.append((date.strftime("%d-%m-%Y"), "", ""))
                 continue
         page = BeautifulSoup(request.content, "html.parser")
-        data[date.strftime("%d-%m-%Y")] = get_news_by_page(page)
-    with open(directory, 'w', encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Date", "Info"])
-        for (date, info) in data.items():
-            writer.writerow([date, info])
+        data.append((date.strftime("%d-%m-%Y"), page.title.text, request.url, page, get_news_by_page(page)))
+    return data
 
 
 if __name__ == "__main__":
+    DIR = "../raw_data_from_parsing/isw/isw.csv"
     start_date = datetime(2022, 2, 24)
     end_date = datetime(2023, 1, 25)
-    parser(start_date, end_date, "../raw_data_from_parsing/isw/isw.csv")
+    parsed = parser(start_date, end_date)
+    writer(parsed, DIR)
