@@ -1,4 +1,5 @@
 import csv
+import re
 from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
@@ -19,8 +20,15 @@ special_urls = {
 
 def get_news_by_page(data):
     parsed_page = []
-    # ignore first three <p> tags about report info
-    for elem in data.find_all("p")[3:]:
+    p_tags = data.find_all("p")
+    bad_data = ["Mason", "George", "Kateryna", "Fredrick", "Frederick", "Key Takeaways"]
+    start_point = 0
+    # remove report info
+    for elem in p_tags[:10]:
+        if elem.strong and re.search("|".join(bad_data), elem.strong.text):
+            start_point = p_tags.index(elem) + 1
+    # parse necessary data
+    for elem in p_tags[start_point:]:
         if not elem.find_all("a"):
             parsed_page.append(elem.text)
     # cleaning bad data
@@ -65,6 +73,6 @@ def parser(start, end):
 if __name__ == "__main__":
     DIR = "../raw_data_from_parsing/isw/isw.csv"
     start_date = datetime(2022, 2, 24)
-    end_date = datetime(2023, 1, 25)
+    end_date = datetime(2023, 3, 25)
     parsed = parser(start_date, end_date)
     writer(parsed, DIR)
