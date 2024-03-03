@@ -49,7 +49,6 @@ def get_weather_next_12_hours(location, current_time):
 
 
 
-
 if __name__ == "__main__":
     get_weather_next_12_hours("Kyiv,Ukraine", utc_time)
 
