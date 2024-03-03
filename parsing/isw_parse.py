@@ -88,6 +88,7 @@ def clean_data(path):
     
     # convert all the data in the column "main_text" to str
     data['main_text'] = data['main_text'].astype(str)
+
     # remove the dates
     date_pattern = r'\b(?:January|February|March|April|May|June|July|August|September|October' \
                    r'|November|December)\s+\d{1,2},\s+(?:\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?\s*(?:ET|EST)?' \
@@ -198,3 +199,4 @@ if __name__ == "__main__":
     parsed = parser(start_date, end_date)
     writer(parsed, DIR)
     clean_data(DIR)
+
