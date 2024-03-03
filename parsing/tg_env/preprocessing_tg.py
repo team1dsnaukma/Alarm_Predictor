@@ -25,6 +25,9 @@ def preprocess_message(message):
     # Remove '@war_monitor'
     message = re.sub(r'@war_monitor', '', message)
 
+    # Remove 'upd:'
+    message = re.sub(r'upd: ', '', message)
+
     # Remove links
     url_pattern = re.compile(r'https?://\S+|www\.\S+')
     message = url_pattern.sub('', message)
