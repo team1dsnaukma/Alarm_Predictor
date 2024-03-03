@@ -88,14 +88,11 @@ def clean_data(path):
 
     # convert all the data in the column "main_text" to str
     data['main_text'] = data['main_text'].astype(str)
-
     # remove the dates
     date_pattern = r'\b(?:January|February|March|April|May|June|July|August|September|October' \
-                   r'|November|December)\s+\d{1,2},\s+(?:\d{1,2}:\d{2}\s*(?:am|pm)?\s*ET?' \
-                   r'|\d+(?:\s*pm|am)?\s*ET?)\b'
+                   r'|November|December)\s+\d{1,2},\s+(?:\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?\s*(?:ET|EST)?' \
+                   r'|\d+\s*(?:AM|PM|am|pm)?\s*(?:ET|EST)?)\b'
     data['main_text'] = data['main_text'].apply(lambda x: re.sub(date_pattern, '', x).lstrip())
-    specific_pattern = r'\bDecember 8, 6:40 PM ET\b'
-    data['main_text'] = data['main_text'].apply(lambda x: re.sub(specific_pattern, '', x).lstrip())
 
     # remove symbols [1], [2], ... [n]
     unnecessary_numeration = r'\[\d+\]'
@@ -117,63 +114,77 @@ def clean_data(path):
 
     # remove unnecessary text in rows
     imm_text = "Immediate items to watch"
-    data['main_text'] = data['main_text'].replace(imm_text, '', regex=True)
+    data['main_text'] = data['main_text'].str.replace(imm_text, '')
 
     # remove unnecessary text in rows
-    unw_text = r'Idata is publishing an abbreviated campaign update today,' \
-               r' (January|October|November|December) \d{1,2}\.'
+    unw_text = r'ISW is publishing an abbreviated campaign update today,' \
+               r' (January|February|March|April|May|June|July|August|September' \
+               r'|October|November|December) \d{1,2}\.'
     data['main_text'] = data['main_text'].apply(lambda x: re.sub(unw_text, '', x))
 
     # remove unnecessary text in rows
-    unwn_text = r'Note: Idata does not receive any classified material from any source, uses' \
+    unwn_text = r'Note: ISW does not receive any classified material from any source, uses' \
                 r' only publicly available information, and draws extensively on Russian,' \
                 r' Ukrainian, and Western reporting and social media as well as commercially' \
                 r' available satellite imagery and other geospatial data as the basis for these' \
                 r' reports. References to all sources used are provided in the endnotes of each' \
                 r' update.'
     data['main_text'] = data['main_text'].replace(unwn_text, '', regex=True)
-    u1_text = "Note: Idata and CTP will not publish a campaign assessment (or maps) tomorrow," \
-              " December 25, in observance of the Christmas holiday. Coverage will resume" \
-              " Monday, December 26."
-    u2_text = "Note: Idata and CTP will not publish a campaign assessment (or maps) tomorrow, " \
-              "January 1, in observance of the New Year\'s Holiday. Coverage will resume on " \
-              "Monday, January 2."
-    data['main_text'] = data['main_text'].str.replace(u1_text, '', regex=False)
-    data['main_text'] = data['main_text'].str.replace(u2_text, '', regex=False)
 
     # remove unnecessary text in rows
-    unss_text = r'This new section in the daily update is not in itself a forecast' \
-                r' or assessment. It lays out the daily observed indicators we are ' \
-                r'using to refine our assessments and forecasts, which we expect to' \
-                r' update regularly. Our assessment that the MDCOA remains unlikely' \
-                r' has not changed.'
-    data['main_text'] = data['main_text'].replace(unss_text, '', regex=True)
-    unss_text = r'We will update this header if and when the assessment changes.'
-    data['main_text'] = data['main_text'].replace(unss_text, '', regex=True)
-    unss_text = r'Observed indicators for the MDCOA in the past 24 hours:'
-    data['main_text'] = data['main_text'].replace(unss_text, '', regex=True)
-    unss_text = r'Observed ambiguous indicators for MDCOA in the past 24 hours:'
-    data['main_text'] = data['main_text'].replace(unss_text, '', regex=True)
-    unss_text = r'Observed counter-indicators for the MDCOA in the past 24 hours:'
-    data['main_text'] = data['main_text'].replace(unss_text, '', regex=True)
-    unss_text = r'We will update this header if the assessment changes.'
-    data['main_text'] = data['main_text'].str.replace(unss_text, '', regex=False)
+    texts_unw = [
+        "Note: ISW and CTP will not publish a campaign assessment (or maps) tomorrow,"
+        " December 25, in observance of the Christmas holiday. Coverage will resume"
+        " Monday, December 26.",
+        "Note: ISW and CTP will not publish a campaign assessment (or maps) tomorrow, "
+        "January 1, in observance of the New Year\'s Holiday. Coverage will resume on "
+        "Monday, January 2."
+    ]
+    for text in texts_unw:
+        data['main_text'] = data['main_text'].str.replace(text, '')
+
+    # remove unnecessary text in rows
+    texts_unss = [
+        "This new section in the daily update is not in itself a forecast or assessment. "
+        "It lays out the daily observed indicators we are using to refine our assessments "
+        "and forecasts, which we expect to update regularly. Our assessment that "
+        "the MDCOA remains unlikely has not changed.",
+        "We will update this header if and when the assessment changes.",
+        "Observed indicators for the MDCOA in the past 24 hours:",
+        "Observed ambiguous indicators for MDCOA in the past 24 hours:",
+        "Observed counter-indicators for the MDCOA in the past 24 hours:",
+        "Observed indicators for the MDCOA in the past 48 hours:",
+        "Observed ambiguous indicators for MDCOA in the past 48 hours:",
+        "Observed counter-indicators for the MDCOA in the past 48 hours:",
+        "We will update this header if the assessment changes.",
+        "We will update our assessments in the coming days as the "
+        "situation clarifies but anticipate that Ukrainian forces will finish clearing "
+        "the last remnants of Russian troops from the Kyiv axis within the next few days.",
+        "We will update our assessment as more information becomes available.",
+        "We will update our maps after information about the new front lines "
+        "unambiguously enters the open-source environment."
+    ]
+    for text in texts_unss:
+        data['main_text'] = data['main_text'].str.replace(text, '')
 
     # remove quotation marks
     data['main_text'] = data['main_text'].apply(lambda x: re.sub(r'[“”]', '', x))
     data['main_text'] = data['main_text'].apply(lambda x: re.sub(r'"', '', x))
-    un_text = 'Idata does not receive any classified material from any source,' \
-              ' uses only publicly available information, and draws extensively on Russian,' \
-              ' Ukrainian, and Western reporting and social media as well as commercially' \
-              ' available satellite imagery and other geospatial data as the basis for' \
-              ' these reports.'
-    data['main_text'] = data['main_text'].str.replace(un_text, '', regex=False)
-    un_text = 'Idata specifically does not receive information from Prigozhin’s' \
-              ' deceased mother-in-law, as he (ironically) suggested.'
-    data['main_text'] = data['main_text'].str.replace(un_text, '', regex=False)
-    un_text = 'Note: Idata will report on activities in Kherson Oblast as part of' \
-              ' the Southern Axis in this and subsequent updates.'
-    data['main_text'] = data['main_text'].str.replace(un_text, '', regex=False)
+
+    # remove unnecessary text in rows
+    un_texts = [
+        "ISW does not receive any classified material from any source, uses only "
+        "publicly available information, and draws extensively on Russian, Ukrainian, "
+        "and Western reporting and social media as well as commercially available "
+        "satellite imagery and other geospatial data as the basis for these reports.",
+        "ISW specifically does not receive information from Prigozhin’s deceased "
+        "mother-in-law, as he (ironically) suggested.",
+        "Note: ISW will report on activities in Kherson Oblast as part of the "
+        "Southern Axis in this and subsequent updates."
+    ]
+
+    for text in un_texts:
+        data['main_text'] = data['main_text'].str.replace(text, '')
 
     # remove extra spaces
     data['main_text'] = data['main_text'].apply(lambda x: re.sub(r'\s+', ' ', x.strip()).lower())
@@ -181,10 +192,9 @@ def clean_data(path):
 
 
 if __name__ == "__main__":
-    DIR = "../../raw_data_from_parsing/isw/isw.csv"
+    DIR = "../raw_data_from_parsing/isw/Tim_check.csv"
     start_date = datetime(2022, 2, 24)
-    end_date = datetime(2023, 1, 25)
+    end_date = datetime(2023, 3, 25)
     parsed = parser(start_date, end_date)
     writer(parsed, DIR)
     clean_data(DIR)
-
