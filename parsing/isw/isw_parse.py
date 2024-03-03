@@ -193,9 +193,9 @@ def clean_data(path):
 
 
 if __name__ == "__main__":
-    DIR = "../raw_data_from_parsing/isw/Tim_check.csv"
+    DIR = "../../raw_data_from_parsing/isw/isw.csv"
     start_date = datetime(2022, 2, 24)
-    end_date = datetime(2023, 3, 25)
+    end_date = datetime(2023, 1, 25)
     parsed = parser(start_date, end_date)
     writer(parsed, DIR)
     clean_data(DIR)
