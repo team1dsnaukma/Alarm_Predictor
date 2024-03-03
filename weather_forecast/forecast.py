@@ -9,7 +9,7 @@ TOKEN = data.get('token', None)
 
 utc_time = datetime.utcnow()
 
-def get_weather_next_12_hours(location, current_time, units):
+def get_weather_next_12_hours(location, current_time):
     future_time = current_time + timedelta(days=1)
     current_date = current_time.strftime('%Y-%m-%d')
     future_date = future_time.strftime('%Y-%m-%d')
@@ -17,7 +17,7 @@ def get_weather_next_12_hours(location, current_time, units):
            f'{future_date}')
     params = {
         'key': TOKEN,
-        'unitGroup': units,
+        'unitGroup': "metric",
         'contentType': 'json',
         "include": "hours"
     }
@@ -51,6 +51,6 @@ def get_weather_next_12_hours(location, current_time, units):
 
 
 if __name__ == "__main__":
-    get_weather_next_12_hours("Kyiv,Ukraine", utc_time, "metric")
+    get_weather_next_12_hours("Kyiv,Ukraine", utc_time)
 
 
