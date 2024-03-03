@@ -72,8 +72,10 @@ file_path = os.path.join(folder_path, "tg_messages_today.csv")
 os.makedirs(folder_path, exist_ok=True)
 
 with open(file_path, "w", encoding="UTF-8") as f:
+    
     writer = csv.writer(f, delimiter=",", lineterminator="\n")
     writer.writerow(["time", "date", "message"])
+    writer = csv.writer(f, quoting=csv.QUOTE_NONE, escapechar='\\')
     writer.writerows(filtered_messages)
 
 print(f"Messages saved to: {file_path}")
