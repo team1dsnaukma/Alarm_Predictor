@@ -16,10 +16,17 @@ def preprocess_message(message):
     # Remove extra spaces
     message = re.sub(r'\s+', ' ', message.strip())
 
+    # Remove words that begin with '#'
+    message = re.sub(r'\b#\w+\b', '', message, flags=re.UNICODE)
+
     # Remove special characters
-    message = re.sub(r'→', '', message)
-    message = re.sub(r'[“”]', '', message)
-    message = re.sub(r'"', '', message)
+    message = re.sub(r'[→“”"|#]', '', message)
+
+    # Remove '@war_monitor'
+    message = re.sub(r'@war_monitor', '', message)
+
+    # Remove 'upd:'
+    message = re.sub(r'upd: ', '', message)
 
     # Remove links
     url_pattern = re.compile(r'https?://\S+|www\.\S+')
