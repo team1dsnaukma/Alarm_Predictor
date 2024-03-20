@@ -193,7 +193,7 @@ def clean_data(path):
 
 
 if __name__ == "__main__":
-    DIR = "../../raw_data_from_parsing/isw/isw.csv"
+    DIR = "../../clean_data/isw.csv"
     start_date = datetime(2022, 2, 24)
     end_date = datetime(2023, 1, 25)
     parsed = parser(start_date, end_date)
