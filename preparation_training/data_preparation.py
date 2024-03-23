@@ -8,9 +8,10 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def to_vector_preprocessing(text, stop_words=[]):
+def to_vector_preprocessing(text, stop_words: list):
     if not stop_words:
         stop_words = stopwords.words("english")
     lemmatizer = WordNetLemmatizer()
@@ -23,10 +24,12 @@ def to_vector_preprocessing(text, stop_words=[]):
     return processed_text
 
 
-def tfidf_vectorizer(_corpus):
+def tfidf_vectorization(_corpus):
     vectorizer = TfidfVectorizer()
     X = vectorizer.fit_transform(_corpus)
-    sparse_matrix = pd.DataFrame(X.todense(), columns=vectorizer.get_feature_names())
+    sparse_matrix = pd.DataFrame(
+        X.todense(),
+        columns=vectorizer.get_feature_names())
     return sparse_matrix
 
 
@@ -38,3 +41,7 @@ def plot_top_by_doc(df, n=5):
             cmap="jet",
             title=f"Doc {i}").invert_yaxis()
     plt.subplots_adjust(hspace=0.4)
+
+
+if __name__ == "__main__":
+    pass
